@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from app.services.lineage import lineage_service
 from app.store import store
 
 MODULE = "dependency"
@@ -45,6 +46,15 @@ class DependencyService:
         entry["abnormal"] = False
         rows.append(entry)
         return entry, []
+
+    def execution_set(
+        self,
+        *,
+        graph_code: str,
+        version: str | None = None,
+    ) -> tuple[dict[str, Any] | None, str]:
+        """依赖解析入口的执行集合：读统一血缘快照，与运行实例看到同一组节点与上下游边。"""
+        return lineage_service.execution_set(graph_code=graph_code, version=version)
 
     def run_action(self, entry_id: int, action: str) -> tuple[dict[str, Any] | None, str]:
         entry = store.find(MODULE, entry_id)

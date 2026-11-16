@@ -30,6 +30,18 @@ def list_entries(
     return PageResult(items=items, total=total, page=page, size=size)
 
 
+@router.get("/execution-set")
+def execution_set(
+    graph_code: str = Query(..., description="图编号"),
+    version: str | None = Query(default=None, description="编排版本，缺省取最新生成的一份血缘快照"),
+) -> dict:
+    """依赖解析入口读取执行集合：来自统一血缘快照，与运行实例看到同一组节点与上下游边。"""
+    result, message = service.execution_set(graph_code=graph_code, version=version)
+    if result is None:
+        raise HTTPException(status_code=404, detail=message)
+    return result
+
+
 @router.get("/{entry_id}", response_model=dict)
 def get_entry(entry_id: int) -> dict:
     """读取单条依赖关系明细；不存在时给出可读的错误说明。"""
